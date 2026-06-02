@@ -28,3 +28,6 @@ backend/uploads/
 
 # Logs
 *.log
+backend/chroma_storage/
+backend/storage/
+backend/storage_fast/

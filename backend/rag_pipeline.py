@@ -1,73 +1,74 @@
-# rag_pipeline.py - Using LlamaIndex (stable)
+# rag_pipeline.py - OPTIMIZED with persistent storage
 
 import os
 from dotenv import load_dotenv
 
-# Load API key
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    print("❌ ERROR: OPENAI_API_KEY not found in .env file")
-    print("Please create a .env file with: OPENAI_API_KEY=your-key-here")
+    print("❌ ERROR: OPENAI_API_KEY not found")
     exit(1)
-print(f"✅ API key loaded (starts with: {api_key[:15]}...)")
+print(f"✅ API key loaded")
 
 from llama_index.core import (
     SimpleDirectoryReader,
     VectorStoreIndex,
-    Settings
+    Settings,
+    StorageContext
 )
 from llama_index.llms.openai import OpenAI
 from llama_index.core.node_parser import SimpleNodeParser
+from llama_index.core import load_index_from_storage
 
 # Configure OpenAI
 Settings.llm = OpenAI(model="gpt-3.5-turbo", temperature=0)
 
-# Step 1: Load PDFs from documents folder
-documents_folder = "documents"
-print(f"\n📁 Loading PDFs from: {documents_folder}")
+# Where to save the index
+PERSIST_DIR = "./storage"
 
-try:
-    reader = SimpleDirectoryReader(documents_folder)
+# Check if index already exists
+if os.path.exists(PERSIST_DIR):
+    print("\n📂 Loading existing index from disk...")
+    storage_context = StorageContext.from_defaults(persist_dir=PERSIST_DIR)
+    index = load_index_from_storage(storage_context)
+    print("✅ Index loaded (no API calls made)")
+else:
+    print("\n📁 First time setup: Loading PDFs and creating index...")
+    reader = SimpleDirectoryReader("documents")
     documents = reader.load_data()
-    print(f"✅ Loaded {len(documents)} document pages")
-except Exception as e:
-    print(f"❌ Error loading documents: {e}")
-    print("Make sure your PDFs are in the 'documents' folder")
-    exit(1)
+    print(f"✅ Loaded {len(documents)} pages")
+    
+    print("\n✂️  Splitting into optimized chunks...")
+    parser = SimpleNodeParser.from_defaults(
+        chunk_size=1500,
+        chunk_overlap=200
+    )
+    nodes = parser.get_nodes_from_documents(documents)
+    print(f"✅ Created {len(nodes)} chunks")
+    
+    print("\n🔢 Creating embeddings (one-time cost)...")
+    index = VectorStoreIndex.from_documents(documents)
+    
+    # SAVE TO DISK - THIS IS THE OPTIMIZATION
+    index.storage_context.persist(persist_dir=PERSIST_DIR)
+    print(f"✅ Index saved to {PERSIST_DIR}")
 
-# Step 2: Split into chunks
-print("\n✂️  Splitting documents into chunks...")
-parser = SimpleNodeParser.from_defaults(chunk_size=512, chunk_overlap=50)
-nodes = parser.get_nodes_from_documents(documents)
-print(f"✅ Created {len(nodes)} chunks")
-
-# Step 3: Create vector index
-print("\n🔢 Creating embeddings and index...")
-index = VectorStoreIndex.from_documents(documents)
-print("✅ Index created")
-
-# Step 4: Create query engine
 query_engine = index.as_query_engine()
 
 print("\n" + "="*50)
-print("DocQA Pro is ready! Ask questions about your LLM documents.")
-print("Type 'quit' to exit.")
+print("DocQA Pro Ready! Ask about GPT-4, Claude, Gemini, Llama, Mistral")
+print("Type 'quit' to exit")
 print("="*50)
 
-# Step 5: Interactive Q&A loop
 while True:
-    question = input("\n❓ Your question: ").strip()
+    question = input("\n❓ Question: ").strip()
     if question.lower() in ['quit', 'exit', 'q']:
-        print("Goodbye!")
         break
-    
     if not question:
         continue
-    
-    print("\n🤔 Searching documents...")
+    print("🤔 Searching...")
     try:
         response = query_engine.query(question)
-        print(f"\n📖 Answer: {response}")
+        print(f"\n📖 Answer: {response}\n")
     except Exception as e:
         print(f"❌ Error: {e}")
