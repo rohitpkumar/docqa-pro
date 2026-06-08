@@ -1,0 +1,57 @@
+✅ API key loaded
+
+📂 Loading index from chroma_storage...
+✅ Index loaded
+
+
+1. Question: What is Claude 3's context window?
+   Expected keyword: '200k'
+   Status: ✅ PASS
+   Response time: 3.19 seconds
+   Answer preview: Claude 3's context window is at least 1M tokens, but at the time of writing, only 200k token contexts are being offered in production....
+
+2. Question: Which company created Claude 3?
+   Expected keyword: 'Anthropic'
+   Status: ✅ PASS
+   Response time: 2.14 seconds
+   Answer preview: Anthropic...
+
+3. Question: Does GPT-4 support vision?
+   Expected keyword: 'vision'
+   Status: ✅ PASS
+   Response time: 1.02 seconds
+   Answer preview: GPT-4 does not support vision....
+
+4. Question: What is Gemini?
+   Expected keyword: 'Google'
+   Status: ✅ PASS
+   Response time: 1.75 seconds
+   Answer preview: Gemini is a family of highly capable multimodal models developed by Google....
+
+5. Question: Compare Claude 3 and GPT-4
+   Expected keyword: 'Claude'
+   Status: ✅ PASS
+   Response time: 2.25 seconds
+   Answer preview: Claude 3 models were evaluated using chain-of-thought prompting and demonstrated strong performance on standardized tests such as LSAT, MBE, AMC, and ...
+
+============================================================
+Evaluation Summary
+============================================================
+Total questions: 5
+Passed (keyword found): 5
+Failed: 0
+Accuracy: 100.0%
+Average response time: 2.07 seconds
+
+============================================================
+Detailed Results
+============================================================
+#   Status   Time(s)  Length   Question
+------------------------------------------------------------
+1   ✅        3.19     24       What is Claude 3's context window?...
+2   ✅        2.14     1        Which company created Claude 3?...
+3   ✅        1.02     5        Does GPT-4 support vision?...
+4   ✅        1.75     12       What is Gemini?...
+5   ✅        2.25     60       Compare Claude 3 and GPT-4...
+
+✅ Evaluation complete.
